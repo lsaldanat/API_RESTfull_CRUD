@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,7 @@ namespace API_RESTfull_CRUD
         {
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ConnectionString")));
             services.AddControllers();
+            AddSwagger(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +44,14 @@ namespace API_RESTfull_CRUD
 
             app.UseHttpsRedirection();
 
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Foo API V1");
+            });
+
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -51,5 +61,27 @@ namespace API_RESTfull_CRUD
                 endpoints.MapControllers();
             });
         }
+
+        private void AddSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(options =>
+            {
+                var groupName = "v1";
+
+                options.SwaggerDoc(groupName, new OpenApiInfo
+                {
+                    Title = $"fluky {groupName}",
+                    Version = groupName,
+                    Description = "fluky API",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "fluky Company",
+                        Email = string.Empty,
+                        Url = new Uri("https://fluky.io/"),
+                    }
+                });
+            });
+        }
+
     }
 }
