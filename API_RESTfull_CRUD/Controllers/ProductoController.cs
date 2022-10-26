@@ -1,6 +1,7 @@
 ﻿using API_RESTfull_CRUD.Contexts;
 using API_RESTfull_CRUD.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,20 +40,56 @@ namespace API_RESTfull_CRUD.Controllers
 
         // POST api/<ProductoController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Producto producto)
         {
+            try
+            {
+                context.Producto.Add(producto);
+                context.SaveChanges();
+
+                return Ok(); //estadi 200 ok
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(); //estado 400 el servidor no pudo interpretar la solicitud enviada
+            }
+
+            
         }
 
         // PUT api/<ProductoController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(string id, [FromBody] Producto producto)
         {
+            if (producto.pro_codigo==id)
+            {
+                context.Entry(producto).State = EntityState.Modified;
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         // DELETE api/<ProductoController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(string id)
         {
+            var product = context.Producto.FirstOrDefault(p=>p.pro_codigo==id);
+            if (product!=null)
+            {
+                context.Producto.Remove(product);
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+
         }
     }
 }
